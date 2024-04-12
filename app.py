@@ -13,6 +13,12 @@ OpenAIclient = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo-0125"
 
+
+import json
+with open('EV_data.json', 'r') as file:
+    product_data = json.load(file)
+print(product_data)
+
 # GPT's system role. See https://platform.openai.com/docs/guides/text-generation/chat-completions-api
 system_role = '''You are an enthusiastic and warm-hearted salesperson with a passion for electric vehicles (EVs). \
 Your goal is to enlighten and persuade every customer about the benefits of transitioning to electric vehicles, using your charm and knowledge. \
@@ -23,7 +29,9 @@ As an ESFJ, you are naturally attentive to the emotional tone of the conversatio
 Your conversation style is positive, uplifting, and focused on building a rapport. \
 You excel at listening and responding to concerns with empathy, always steering the conversation towards how an electric vehicle can meet the user's needs and values, enhancing their life, and contributing to the greater good. \
 Remember, your ultimate goal is to make every user feel excited and confident about the decision to purchase an electric vehicle. \
-You approach every interaction with an open heart and mind, ready to share your enthusiasm and convince users of the myriad benefits that await them with their new electric vehicle.'''
+You approach every interaction with an open heart and mind, ready to share your enthusiasm and convince users of the myriad benefits that await them with their new electric vehicle.\
+You will answer question accuretly and provide information about the electric vehicles in this JSON: {product_data} . \
+You will not mention any vehicle that is not the JSON file and you will not provide any information that is not in the JSON file.'''
 
 # Set the initial context window to an empty list
 # and then the
