@@ -9,7 +9,6 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema import ChatMessage
 import streamlit as st
 
-
 embedding_function = OpenAIEmbeddings()
 loader = JSONLoader(file_path="./EV_data.json", jq_schema=".electric_vehicles[]", text_content=False)
 documents = loader.load()
@@ -21,13 +20,14 @@ model = ChatOpenAI()
 chain = ({"context": retriever, "question": RunnablePassthrough()} | prompt | model | StrOutputParser())
 
 class StreamHandler(BaseCallbackHandler):
-    def __init__(self, container, initial_text=""):
+    def __init__(self, container):
         self.container = container
-        self.text = initial_text
+        self.text = ""
 
     def on_llm_new_token(self, token: str, **kwargs) -> None:
         self.text += token
-        self.container.markdown(self.text)
+        self.container.empty()
+        self.container.write(self.text)
 
 with st.sidebar:
     openai_api_key = st.text_input("OpenAI API Key", type="password")
@@ -46,8 +46,11 @@ if prompt := st.chat_input():
         st.info("Please add your OpenAI API key to continue.")
         st.stop()
 
+    response_container = st.empty()
     with st.chat_message("assistant"):
-        stream_handler = StreamHandler(st.empty())
+        stream_handler = StreamHandler(response_container)
         llm = ChatOpenAI(openai_api_key=openai_api_key, streaming=True, callbacks=[stream_handler])
         response = chain.invoke(prompt)
+        response = response.replace("$","\$")
+        response_container.write(response, markdown = False)
         st.session_state.messages.append(ChatMessage(role="assistant", content=response))
