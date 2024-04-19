@@ -105,7 +105,7 @@ def getResponse(messages):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages,
-        max_tokens=150
+        max_tokens=350
 
 )
     return response.choices[0].message.content
